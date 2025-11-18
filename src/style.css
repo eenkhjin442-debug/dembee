@@ -1,7 +1,5 @@
 
-/* --------------------
-   BASE
--------------------- */
+/* suuri */
 
 *{
   box-sizing: border-box;
@@ -18,14 +16,12 @@ body{
   padding: 0;
   color: #fdf6e3;
 
-  /* Dark navy background to match card */
+  /* sr aliin heseg */
   background:
     radial-gradient(circle at top, #1d3557 0%, #060911 55%, #000000 100%);
 }
 
-/* --------------------
-   PAGES
--------------------- */
+/* nuur */
 
 .page{
   min-height: 100vh;
@@ -34,7 +30,7 @@ body{
   padding: 24px 16px;
   display: none;
 
-  /* center content */
+  /* gol heseg */
   display: none;
   align-items: center;
   justify-content: center;
@@ -45,14 +41,12 @@ body{
   display: flex;
 }
 
-/* --------------------
-   HEADINGS / TEXT
--------------------- */
+/* garchig */
 
 .main-title{
   margin: 0 0 10px;
   text-align: center;
-  color: #ffd97a;       /* gold */
+  color: #ffd97a;       
   text-shadow: 0 0 8px rgba(0,0,0,0.6);
 }
 
@@ -75,9 +69,7 @@ body{
   width: 220px;
 }
 
-/* --------------------
-   BUTTONS
--------------------- */
+/* tovchnuud */
 
 .btn{
   padding: 8px 12px;
@@ -111,7 +103,7 @@ body{
 }
 
 .play-btn{
-  background: #1b6f3c;   /* green */
+  background: #1b6f3c;   
 }
 
 .play-btn:hover{
@@ -119,7 +111,7 @@ body{
 }
 
 .reset-btn{
-  background: #8c1d1d;   /* red */
+  background: #8c1d1d;   
 }
 
 .reset-btn:hover{
@@ -136,9 +128,7 @@ body{
   width: 100%;
 }
 
-/* --------------------
-   RULES BOX
--------------------- */
+/* durem */
 
 .rules-box{
   max-width: 430px;
@@ -155,7 +145,7 @@ body{
   overflow: hidden;
 }
 
-/* decorative stripe top/bottom */
+/* chimeglel */
 .rules-box::before,
 .rules-box::after{
   content: "";
@@ -177,9 +167,7 @@ body{
 .rules-box::before{ top: 0; }
 .rules-box::after{ bottom: 0; }
 
-/* --------------------
-   GAME BOX
--------------------- */
+/* togloomnii hairtsag */
 
 .game-box{
   max-width: 430px;
@@ -221,9 +209,7 @@ body{
   margin-bottom: 8px;
 }
 
-/* --------------------
-   RESULT MESSAGE
--------------------- */
+/* ur dun */
 
 .result-message{
   margin: 4px 0 8px;
@@ -241,9 +227,7 @@ body{
   color: #ff6b6b;
 }
 
-/* --------------------
-   FORM / LAYOUT INSIDE CARD
--------------------- */
+/* dotorh card */
 
 .section{
   margin-bottom: 10px;
@@ -284,9 +268,7 @@ body{
   margin-bottom: 4px;
 }
 
-/* --------------------
-   RESPONSIVE (MOBILE)
--------------------- */
+/* utsan deer hargdah */
 
 @media (max-width: 600px){
   .page{
