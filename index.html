@@ -1,80 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>Even / Odd Game</title>
     <link rel="stylesheet" href="./src/style.css">
-    <title>odd/even</title>
 </head>
-
-
-    
 <body>
-  <!-- Landing / Start Screen -->
-  <section id="landing" class="landing">
-    <section id="game" class="hidden">
-  ...
-</section>
 
-  ... <div class="landing-card">
-      <h1>Odd / Even</h1>
-      <p class="subtitle">Pick a number (0–5), choose Even or Odd — sum decides the winner.</p>
-      <div class="landing-actions">
-        <button id="startBtn" class="primary">Start</button>
-        <button id="rulesBtn" class="ghost">Game Rules</button>
-      </div>
-      <p class="hint">Press <span class="kbd">Enter</span> to start</p>
+    <!-- HOME PAGE -->
+    <div id="homePage" class="page active">
+        <h1 class="main-title">Even / Odd Game</h1>
+        <p class="sub-text">
+            Pick a number, choose Even or Odd, and try to beat the computer!
+        </p>
+        <div class="menu-box">
+            <button id="startBtn" class="btn big-btn">Start</button>
+            <button id="rulesBtn" class="btn big-btn second-btn">Rules</button>
+        </div>
     </div>
-  </section>
 
-  <!-- Rules Modal -->
-  <div id="rulesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
-    <div class="modal-card">
-      <h2 id="rulesTitle">Game Rules</h2>
-      <ol class="rules-list">
-        <li>Player picks a number from <b>0 to 5</b>.</li>
-        <li>Player chooses <b>Even</b> or <b>Odd</b>.</li>
-        <li>The computer randomly picks a number (0–5).</li>
-        <li>We add both numbers. If the sum matches your Even/Odd choice, you win the round.</li>
-        <li>First to reach the target score (default <b>3</b> or <b>5</b> or <b>7</b>) wins the game.</li>
-      </ol>
-      <div class="modal-actions">
-        <button id="closeRules" class="primary">Got it</button>
-      </div>
+    <!-- RULES PAGE -->
+    <div id="rulesPage" class="page">
+        <h2 class="main-title">Rules</h2>
+
+        <div class="rules-box">
+            <p>1. Pick a number from <b>0 to 5</b>.</p>
+            <p>2. Choose <b>Even</b> or <b>Odd</b>.</p>
+            <p>3. The computer also picks a random number from 0 to 5.</p>
+            <p>4. Both numbers are added together.</p>
+            <p>
+                If the sum matches your choice (Even or Odd),
+                <b>you get a point</b>. Otherwise, the computer gets a point.
+            </p>
+            <p><b>First to reach 5 points wins.</b></p>
+        </div>
+
+        <button id="backFromRules" class="btn back-btn">← Back</button>
     </div>
-  </div>
 
-  <h1>Odd / Even – Simple</h1>
+    <!-- GAME PAGE -->
+    <div id="gamePage" class="page">
+        <div class="game-box">
+            <h2 class="main-title small">Game</h2>
 
-  <div class="box">
-    <div>Player: <span id="pScore">0</span> | Computer: <span id="cScore">0</span></div>
-    <div>Target to win: <b id="toWin">3</b></div>
-  </div>
+            <div class="score-row">
+                <div>Player: <span id="playerScore">0</span></div>
+                <div>Computer: <span id="compScore">0</span></div>
+            </div>
 
-  <div class="box">
-    <div class="label">Pick a number (0–5)</div>
-    <div id="nums"></div>
-  </div>
+            <!-- result text (WIN / LOSE) -->
+            <div id="resultMessage" class="result-message"></div>
 
-  <div class="box">
-    <div class="label">Pick parity</div>
-    <button id="evenBtn">Even</button>
-    <button id="oddBtn">Odd</button>
-  </div>
+            <div class="section">
+                <div class="label">Pick a number (0–5):</div>
+                <div id="numberBtns" class="btn-row">
+                    <!-- created in JS -->
+                </div>
+            </div>
 
-  <div class="box">
-    <button id="playBtn">Play Round</button>
-    <button id="resetBtn">Reset</button>
-  </div>
+            <div class="section">
+                <div class="label">Choose Even or Odd:</div>
+                <div class="btn-row">
+                    <button id="evenBtn" class="btn">Even</button>
+                    <button id="oddBtn" class="btn">Odd</button>
+                </div>
+            </div>
 
-  <div class="box">
-    <div id="info">Choose number + parity, then press Play.</div>
-    <div id="log"></div>
-  </div>
+            <div class="section">
+                <button id="playBtn" class="btn play-btn">Play Round</button>
+                <button id="resetBtn" class="btn reset-btn">Reset</button>
+            </div>
 
-  
+            <div id="info" class="info-box">
+                First choose a number, then choose Even/Odd, then press "Play Round".
+            </div>
+
+            <div id="log" class="log-box">
+                <!-- round history -->
+            </div>
+
+            <button id="backFromGame" class="btn back-btn bottom-back">← Back to Menu</button>
+        </div>
+    </div>
+
     <script type="module" src="./src/main.js"></script>
 </body>
-
 </html>

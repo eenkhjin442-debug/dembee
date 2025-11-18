@@ -1,179 +1,222 @@
-// ====== GAME STATE (simple) ======
-var playerNumber = null;    // 0..5
-var playerParity = null;    // 'even' | 'odd'
+// pages
+var homePage = document.getElementById("homePage");
+var rulesPage = document.getElementById("rulesPage");
+var gamePage  = document.getElementById("gamePage");
+
+// menu buttons
+var startBtn       = document.getElementById("startBtn");
+var rulesBtn       = document.getElementById("rulesBtn");
+var backFromRules  = document.getElementById("backFromRules");
+var backFromGame   = document.getElementById("backFromGame");
+
+// game elements
+var numberBtnsBox  = document.getElementById("numberBtns");
+var evenBtn        = document.getElementById("evenBtn");
+var oddBtn         = document.getElementById("oddBtn");
+var playBtn        = document.getElementById("playBtn");
+var resetBtn       = document.getElementById("resetBtn");
+var infoEl         = document.getElementById("info");
+var logEl          = document.getElementById("log");
+var playerScoreEl  = document.getElementById("playerScore");
+var compScoreEl    = document.getElementById("compScore");
+var resultMessageEl = document.getElementById("resultMessage");
+
+// game state
+var playerNumber = null;
+var playerParity = null;
 var pScore = 0;
 var cScore = 0;
-var toWin = 3;
 var gameOver = false;
+var numberButtons = [];
 
-// ====== DOM refs ======
-var landing   = document.getElementById('landing');
-var gameSec   = document.getElementById('game');
-var startBtn  = document.getElementById('startBtn');
-var rulesBtn  = document.getElementById('rulesBtn');
-var rulesModal= document.getElementById('rulesModal');
-var closeRules= document.getElementById('closeRules');
-var backBtn   = document.getElementById('backBtn');
+// show page
+function showPage(name){
+    homePage.classList.remove("active");
+    rulesPage.classList.remove("active");
+    gamePage.classList.remove("active");
 
-var pScoreEl = document.getElementById('pScore');
-var cScoreEl = document.getElementById('cScore');
-var toWinEl  = document.getElementById('toWin');
-var numsEl   = document.getElementById('nums');
-var infoEl   = document.getElementById('info');
-var logEl    = document.getElementById('log');
-var evenBtn  = document.getElementById('evenBtn');
-var oddBtn   = document.getElementById('oddBtn');
-var playBtn  = document.getElementById('playBtn');
-var resetBtn = document.getElementById('resetBtn');
-
-// ====== BUILD number buttons 0..5 ======
-function buildNumberButtons() {
-  var i;
-  for (i = 0; i <= 5; i++) {
-    (function(n){
-      var b = document.createElement('button');
-      b.textContent = n;
-      b.onclick = function () {
-        if (gameOver) return;
-        playerNumber = n;
-        updateInfo();
-      };
-      numsEl.appendChild(b);
-    })(i);
-  }
+    if(name === "home")  homePage.classList.add("active");
+    if(name === "rules") rulesPage.classList.add("active");
+    if(name === "game")  gamePage.classList.add("active");
 }
 
-function updateInfo() {
-  var numText = (playerNumber === null) ? '—' : playerNumber;
-  var parText = playerParity ? (playerParity === 'even' ? 'Even' : 'Odd') : '—';
-  infoEl.textContent = 'Your choice: Number = ' + numText + ', ' + parText;
-}
+// initial page
+showPage("home");
 
-function isEven(n) { return n % 2 === 0; }
-
-function playRound() {
-  if (gameOver) return;
-  if (playerNumber === null || !playerParity) {
-    infoEl.textContent = 'Please pick both a number and parity.';
-    return;
-  }
-
-  var comp = Math.floor(Math.random() * 6); // 0..5
-  var sum = playerNumber + comp;
-  var sumEven = isEven(sum);
-  var playerSaidEven = (playerParity === 'even');
-
-  if ((sumEven && playerSaidEven) || (!sumEven && !playerSaidEven)) {
-    pScore++;
-    infoEl.textContent = 'You win this round! Sum = ' + sum + ' (' + (sumEven ? 'Even' : 'Odd') + ')';
-    logEl.innerHTML = '<div>✅ You: ' + playerNumber + ', Comp: ' + comp + ', Sum ' + sum + '</div>' + logEl.innerHTML;
-  } else {
-    cScore++;
-    infoEl.textContent = 'Computer wins this round. Sum = ' + sum + ' (' + (sumEven ? 'Even' : 'Odd') + ')';
-    logEl.innerHTML = '<div>❌ You: ' + playerNumber + ', Comp: ' + comp + ', Sum ' + sum + '</div>' + logEl.innerHTML;
-  }
-
-  pScoreEl.textContent = pScore;
-  cScoreEl.textContent = cScore;
-
-  // ---- WIN / LOSE message ----
-  var messageBox = document.createElement('div');
-  messageBox.className = 'game-message';
-  if (pScore >= toWin) {
-    gameOver = true;
-    messageBox.textContent = '🎉 Congratulations! You Win!';
-    messageBox.classList.add('win');
-  } else if (cScore >= toWin) {
-    gameOver = true;
-    messageBox.textContent = '😢 You Lose';
-    messageBox.classList.add('lose');
-  }
-
-  if (gameOver) {
-    document.body.appendChild(messageBox);
-    setTimeout(function() {
-      messageBox.classList.add('show');
-    }, 100);
-  }
-
-  playerNumber = null;
-  updateInfo();
-}
-
-function resetGame() {
-  playerNumber = null;
-  playerParity = null;
-  pScore = 0;
-  cScore = 0;
-  gameOver = false;
-
-  pScoreEl.textContent = '0';
-  cScoreEl.textContent = '0';
-  toWinEl.textContent = toWin;
-  infoEl.textContent = 'Choose number + parity, then press Play.';
-  logEl.innerHTML = '';
-  updateInfo();
-
-  // remove any message
-  var msg = document.querySelector('.game-message');
-  if (msg) msg.remove();
-}
-
-
-// ====== Start screen / modal / back ======
-function showGame() {
-  landing.classList.add('hidden');
-  gameSec.classList.remove('hidden');
-}
-
-function showLanding() {
-  gameSec.classList.add('hidden');
-  landing.classList.remove('hidden');
-}
-
-function openRules() {
-  rulesModal.classList.remove('hidden');
-}
-
-function closeRulesModal() {
-  rulesModal.classList.add('hidden');
-}
-
-// ====== Event bindings ======
-evenBtn.onclick = function(){ if (!gameOver) { playerParity = 'even'; updateInfo(); } };
-oddBtn.onclick  = function(){ if (!gameOver) { playerParity = 'odd'; updateInfo(); } };
-playBtn.onclick = playRound;
-resetBtn.onclick= resetGame;
-
-// change target buttons (3/5/7)
-document.addEventListener('click', function(e){
-  var t = e.target;
-  if (t && t.matches('[data-target]')) {
-    toWin = parseInt(t.getAttribute('data-target'), 10) || 3;
-    toWinEl.textContent = toWin;
-    // keep current scores, just change target
-  }
+// menu events
+startBtn.addEventListener("click", function(){
+    showPage("game");
 });
 
-// landing / modal / back
-startBtn.onclick = showGame;
-rulesBtn.onclick = openRules;
-closeRules.onclick = closeRulesModal;
-backBtn.onclick = function(){
-  // optional: also reset when going back
-  resetGame();
-  showLanding();
-};
-
-// keyboard: Enter to start on landing, Esc to close rules
-window.addEventListener('keydown', function(e){
-  if (!gameSec || !landing) return;
-  var onLanding = !landing.classList.contains('hidden');
-  if (onLanding && e.key === 'Enter') showGame();
-  if (!onLanding && e.key === 'Escape') closeRulesModal();
+rulesBtn.addEventListener("click", function(){
+    showPage("rules");
 });
 
-// ====== Init ======
-buildNumberButtons();
-resetGame();
+backFromRules.addEventListener("click", function(){
+    showPage("home");
+});
 
+backFromGame.addEventListener("click", function(){
+    showPage("home");
+});
+
+// create number buttons (0–5)
+for (var i = 0; i <= 5; i++){
+    var b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = i;
+
+    (function(value, btn){
+        btn.addEventListener("click", function(){
+            selectNumber(value);
+        });
+    })(i, b);
+
+    numberBtnsBox.appendChild(b);
+    numberButtons.push(b);
+}
+
+// select number
+function selectNumber(n){
+    if(gameOver) return;
+
+    playerNumber = n;
+
+    for (var i = 0; i < numberButtons.length; i++){
+        if (i === n){
+            numberButtons[i].classList.add("selected");
+        }else{
+            numberButtons[i].classList.remove("selected");
+        }
+    }
+
+    infoEl.textContent = "You selected number " + n + ". Now choose Even or Odd.";
+}
+
+// select parity
+function selectParity(parity){
+    if(gameOver) return;
+
+    playerParity = parity;
+
+    if (parity === "even"){
+        evenBtn.classList.add("selected");
+        oddBtn.classList.remove("selected");
+    }else{
+        oddBtn.classList.add("selected");
+        evenBtn.classList.remove("selected");
+    }
+
+    if(playerNumber === null){
+        infoEl.textContent = "You chose " + parity.toUpperCase() + ". Now pick a number.";
+    }else{
+        infoEl.textContent =
+            "Number: " + playerNumber +
+            ", Choice: " + parity.toUpperCase() +
+            ". Press Play Round.";
+    }
+}
+
+evenBtn.addEventListener("click", function(){
+    selectParity("even");
+});
+
+oddBtn.addEventListener("click", function(){
+    selectParity("odd");
+});
+
+// helper functions
+function isEven(n){
+    return n % 2 === 0;
+}
+
+function updateScores(){
+    playerScoreEl.textContent = pScore;
+    compScoreEl.textContent   = cScore;
+}
+
+// play one round
+function playRound(){
+    if(gameOver) return;
+
+    if(playerNumber === null || !playerParity){
+        infoEl.textContent = "Please choose both a number and Even/Odd.";
+        return;
+    }
+
+    var comp = Math.floor(Math.random() * 6); // 0..5
+    var sum  = playerNumber + comp;
+    var sumEven = isEven(sum);
+    var playerPickedEven = (playerParity === "even");
+
+    if ((sumEven && playerPickedEven) || (!sumEven && !playerPickedEven)){
+        pScore++;
+        infoEl.textContent =
+            "You win this round! Sum = " + sum +
+            " (" + (sumEven ? "Even" : "Odd") + ")";
+        logEl.innerHTML =
+            "<div>✅ You: " + playerNumber +
+            ", Computer: " + comp +
+            ", Sum " + sum + "</div>" + logEl.innerHTML;
+    } else {
+        cScore++;
+        infoEl.textContent =
+            "Computer wins this round. Sum = " + sum +
+            " (" + (sumEven ? "Even" : "Odd") + ")";
+        logEl.innerHTML =
+            "<div>❌ You: " + playerNumber +
+            ", Computer: " + comp +
+            ", Sum " + sum + "</div>" + logEl.innerHTML;
+    }
+
+    updateScores();
+
+    // check game over (first to 5)
+    if (pScore >= 5 || cScore >= 5){
+        gameOver = true;
+
+        // clear old classes
+        resultMessageEl.classList.remove("result-win", "result-lose");
+
+        if (pScore > cScore){
+            // player wins
+            resultMessageEl.textContent = "Congratulations! You win!";
+            resultMessageEl.classList.add("result-win");
+        } else {
+            // computer wins
+            resultMessageEl.textContent = "LOSE";
+            resultMessageEl.classList.add("result-lose");
+        }
+
+        infoEl.textContent += "  Game Over! Press Reset to play again.";
+    }
+}
+
+playBtn.addEventListener("click", playRound);
+
+// reset game
+function resetGame(){
+    playerNumber = null;
+    playerParity = null;
+    pScore = 0;
+    cScore = 0;
+    gameOver = false;
+
+    for (var i = 0; i < numberButtons.length; i++){
+        numberButtons[i].classList.remove("selected");
+    }
+    evenBtn.classList.remove("selected");
+    oddBtn.classList.remove("selected");
+
+    logEl.innerHTML = "";
+    updateScores();
+
+    // clear result message
+    resultMessageEl.textContent = "";
+    resultMessageEl.classList.remove("result-win", "result-lose");
+
+    infoEl.textContent =
+        "Game reset! Pick a number, choose Even/Odd, then press Play Round.";
+}
+
+resetBtn.addEventListener("click", resetGame);
