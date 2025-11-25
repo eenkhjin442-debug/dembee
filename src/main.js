@@ -1,3 +1,5 @@
+ClickBattle.init("enkhjin"); // 자기 닉네임
+
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -135,7 +137,8 @@ window.addEventListener("keydown", (e)=>{
   if(nd){
     if(!(nd.x === -dir.x && nd.y === -dir.y)){
       nextDir = nd;
-      clicks++;       // keyboard = click
+      clicks++;     
+      ClickBattle.recordClick();  // keyboard = click
       updateHUD();
     }
     e.preventDefault();
