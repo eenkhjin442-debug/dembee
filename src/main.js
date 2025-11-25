@@ -1,222 +1,354 @@
-// pages
-var homePage = document.getElementById("homePage");
-var rulesPage = document.getElementById("rulesPage");
-var gamePage  = document.getElementById("gamePage");
 
-// menu buttons
-var startBtn       = document.getElementById("startBtn");
-var rulesBtn       = document.getElementById("rulesBtn");
-var backFromRules  = document.getElementById("backFromRules");
-var backFromGame   = document.getElementById("backFromGame");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-// game elements
-var numberBtnsBox  = document.getElementById("numberBtns");
-var evenBtn        = document.getElementById("evenBtn");
-var oddBtn         = document.getElementById("oddBtn");
-var playBtn        = document.getElementById("playBtn");
-var resetBtn       = document.getElementById("resetBtn");
-var infoEl         = document.getElementById("info");
-var logEl          = document.getElementById("log");
-var playerScoreEl  = document.getElementById("playerScore");
-var compScoreEl    = document.getElementById("compScore");
-var resultMessageEl = document.getElementById("resultMessage");
+/* =========================
+   RESPONSIVE CANVAS
+========================= */
+function resizeCanvas(){
+  const cssSize = Math.min(
+    window.innerWidth * 0.92,
+    window.innerHeight * 0.62,
+    520
+  );
+  const dpr = window.devicePixelRatio || 1;
 
-// game state
-var playerNumber = null;
-var playerParity = null;
-var pScore = 0;
-var cScore = 0;
-var gameOver = false;
-var numberButtons = [];
+  canvas.width = Math.floor(cssSize * dpr);
+  canvas.height = Math.floor(cssSize * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
-// show page
-function showPage(name){
-    homePage.classList.remove("active");
-    rulesPage.classList.remove("active");
-    gamePage.classList.remove("active");
-
-    if(name === "home")  homePage.classList.add("active");
-    if(name === "rules") rulesPage.classList.add("active");
-    if(name === "game")  gamePage.classList.add("active");
+const GRID = 24;
+function CELL(){ 
+  return canvas.width / (window.devicePixelRatio||1) / GRID; 
 }
 
-// initial page
-showPage("home");
+/* =========================
+   GAME STATE
+========================= */
+let snake, dir, nextDir, gift, score, clicks;
+let speed = 6;        // steps per second
+let running = false;  // start paused
+let lastTime = 0;
+let acc = 0;
 
-// menu events
-startBtn.addEventListener("click", function(){
-    showPage("game");
+/* =========================
+   COLORS
+========================= */
+const C = {
+  red:"#e74a4a",
+  darkRed:"#b02f2f",
+  white:"#f7f7f7",
+  black:"#141414",
+  skin:"#f2c9a0",
+  gold:"#f5c84c",
+  green:"#3bd26b",
+};
+
+/* =========================
+   HUD
+========================= */
+const scoreEl = document.getElementById("score");
+const clicksEl = document.getElementById("clicks");
+const speedEl = document.getElementById("speed");
+function updateHUD(){
+  scoreEl.textContent = score;
+  clicksEl.textContent = clicks;
+  speedEl.textContent = speed;
+}
+
+/* =========================
+   START SCREEN
+========================= */
+const startScreen = document.getElementById("startScreen");
+const startBtn = document.getElementById("startBtn");
+
+startBtn?.addEventListener("click", ()=>{
+  startScreen.style.display = "none";
+  running = true;
+  reset();
 });
 
-rulesBtn.addEventListener("click", function(){
-    showPage("rules");
+/* =========================
+   RESTART BUTTON
+========================= */
+document.getElementById("restart")?.addEventListener("click", ()=>{
+  running = true;
+  reset();
 });
 
-backFromRules.addEventListener("click", function(){
-    showPage("home");
+/* =========================
+   RESET / INIT
+========================= */
+function reset(){
+  snake = [
+    {x:12, y:12},
+    {x:11, y:12},
+    {x:10, y:12}
+  ];
+  dir = {x:1, y:0};
+  nextDir = {x:1, y:0};
+
+  gift = spawnGift();
+  score = 0;
+  clicks = 0;
+  speed = 6;
+
+  lastTime = 0;
+  acc = 0;
+
+  updateHUD();
+}
+
+// ✅ page нээхэд preview харагдахаар init reset
+reset();
+
+/* =========================
+   RANDOM GIFT SPAWN
+========================= */
+function spawnGift(){
+  while(true){
+    const g = { 
+      x: (Math.random()*GRID)|0, 
+      y: (Math.random()*GRID)|0 
+    };
+    if(!snake.some(s=>s.x===g.x && s.y===g.y)) return g;
+  }
+}
+
+/* =========================
+   KEYBOARD INPUT
+========================= */
+window.addEventListener("keydown", (e)=>{
+  if(!running) return;
+
+  const key = e.key;
+  let nd=null;
+
+  if(key==="ArrowUp") nd={x:0,y:-1};
+  if(key==="ArrowDown") nd={x:0,y:1};
+  if(key==="ArrowLeft") nd={x:-1,y:0};
+  if(key==="ArrowRight") nd={x:1,y:0};
+
+  if(nd){
+    if(!(nd.x === -dir.x && nd.y === -dir.y)){
+      nextDir = nd;
+      clicks++;       // keyboard = click
+      updateHUD();
+    }
+    e.preventDefault();
+  }
 });
 
-backFromGame.addEventListener("click", function(){
-    showPage("home");
+/* =========================
+   MOBILE DPAD INPUT (B)
+   (index.html + style.css дээр
+    dpad нэмсэн байх ёстой)
+========================= */
+document.querySelectorAll(".dpad button").forEach(btn=>{
+  btn.addEventListener("touchstart", (e)=>{
+    e.preventDefault();
+    if(!running) return;
+
+    const d = btn.dataset.dir;
+    let nd = null;
+
+    if(d==="up") nd={x:0,y:-1};
+    if(d==="down") nd={x:0,y:1};
+    if(d==="left") nd={x:-1,y:0};
+    if(d==="right") nd={x:1,y:0};
+
+    if(nd && !(nd.x === -dir.x && nd.y === -dir.y)){
+      nextDir = nd;
+      clicks++;  // dpad = click
+      updateHUD();
+    }
+  }, {passive:false});
 });
 
-// create number buttons (0–5)
-for (var i = 0; i <= 5; i++){
-    var b = document.createElement("button");
-    b.className = "btn";
-    b.textContent = i;
+/* =========================
+   GAME STEP
+========================= */
+function step(){
+  dir = nextDir;
+  const head = snake[0];
+  const nx = head.x + dir.x;
+  const ny = head.y + dir.y;
 
-    (function(value, btn){
-        btn.addEventListener("click", function(){
-            selectNumber(value);
-        });
-    })(i, b);
+  // wall hit
+  if(nx<0 || ny<0 || nx>=GRID || ny>=GRID){ 
+    gameOver(); 
+    return; 
+  }
+  // self hit
+  if(snake.some((s,i)=>i>0 && s.x===nx && s.y===ny)){ 
+    gameOver(); 
+    return; 
+  }
 
-    numberBtnsBox.appendChild(b);
-    numberButtons.push(b);
+  snake.unshift({x:nx,y:ny});
+
+  // eat gift
+  if(nx===gift.x && ny===gift.y){
+    score++;
+    gift = spawnGift();
+
+    // speed up every 3 gifts
+    if(score%3===0) speed++;
+
+    updateHUD();
+  } else {
+    snake.pop();
+  }
 }
 
-// select number
-function selectNumber(n){
-    if(gameOver) return;
+/* =========================
+   GAME OVER
+========================= */
+function gameOver(){
+  running = false;
+  draw();
 
-    playerNumber = n;
+  const w = canvas.width/(window.devicePixelRatio||1);
+  const h = canvas.height/(window.devicePixelRatio||1);
 
-    for (var i = 0; i < numberButtons.length; i++){
-        if (i === n){
-            numberButtons[i].classList.add("selected");
-        }else{
-            numberButtons[i].classList.remove("selected");
-        }
-    }
-
-    infoEl.textContent = "You selected number " + n + ". Now choose Even or Odd.";
+  ctx.fillStyle="rgba(0,0,0,0.6)";
+  ctx.fillRect(0,0,w,h);
+  ctx.fillStyle="#fff";
+  ctx.font="bold 26px system-ui";
+  ctx.textAlign="center";
+  ctx.fillText("GAME OVER", w/2, h/2-8);
+  ctx.font="14px system-ui";
+  ctx.fillText("Press Restart", w/2, h/2+16);
 }
 
-// select parity
-function selectParity(parity){
-    if(gameOver) return;
-
-    playerParity = parity;
-
-    if (parity === "even"){
-        evenBtn.classList.add("selected");
-        oddBtn.classList.remove("selected");
-    }else{
-        oddBtn.classList.add("selected");
-        evenBtn.classList.remove("selected");
+/* =========================
+   PIXEL DRAW HELPER
+========================= */
+function drawPixelArt(px, py, map, palette){
+  const cell = CELL();
+  const size = cell/8;
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      const ch = map[r][c];
+      if(ch===".") continue;
+      ctx.fillStyle = palette[ch];
+      ctx.fillRect(px + c*size, py + r*size, size, size);
     }
-
-    if(playerNumber === null){
-        infoEl.textContent = "You chose " + parity.toUpperCase() + ". Now pick a number.";
-    }else{
-        infoEl.textContent =
-            "Number: " + playerNumber +
-            ", Choice: " + parity.toUpperCase() +
-            ". Press Play Round.";
-    }
+  }
 }
 
-evenBtn.addEventListener("click", function(){
-    selectParity("even");
-});
+/* =========================
+   PIXEL MAPS
+========================= */
+// Santa head (8x8)
+const santaMap=[
+  "..rrrr..",
+  ".rwwwwr.",
+  "rwwbbwwr",
+  "rws sswr",
+  "rwwssssr",
+  ".rwwwwr.",
+  "..rddr..",
+  "...rr..."
+];
+const santaPalette={
+  "r":C.red,
+  "d":C.darkRed,
+  "w":C.white,
+  "b":C.black,
+  "s":C.skin,
+  ".":"transparent"
+};
 
-oddBtn.addEventListener("click", function(){
-    selectParity("odd");
-});
+// Gift body (8x8)
+const giftMap=[
+  "ggggrrrr",
+  "ggggrrrr",
+  "yyyyrrrr",
+  "yyyyrrrr",
+  "rrrryyyy",
+  "rrrryyyy",
+  "rrrrgggg",
+  "rrrrgggg"
+];
+const giftPalette={
+  "g":C.green,
+  "r":C.red,
+  "y":C.gold,
+  ".":"transparent"
+};
 
-// helper functions
-function isEven(n){
-    return n % 2 === 0;
+// Food gift (8x8)
+const foodMap=[
+  "rrrrrrrr",
+  "rggggggr",
+  "rgyyyygr",
+  "rgyrrygr",
+  "rgyyyygr",
+  "rggggggr",
+  "rrrrrrrr",
+  "..yyyy.."
+];
+const foodPalette={
+  "r":C.red,
+  "g":C.green,
+  "y":C.gold,
+  ".":"transparent"
+};
+
+/* =========================
+   DRAW FRAME
+========================= */
+function draw(){
+  const cell = CELL();
+  const w = canvas.width/(window.devicePixelRatio||1);
+  const h = canvas.height/(window.devicePixelRatio||1);
+
+  ctx.clearRect(0,0,w,h);
+
+  // food
+  drawPixelArt(gift.x*cell, gift.y*cell, foodMap, foodPalette);
+
+  // snake (head + body)
+  snake.forEach((s,i)=>{
+    const px=s.x*cell, py=s.y*cell;
+    if(i===0) drawPixelArt(px,py,santaMap,santaPalette);
+    else drawPixelArt(px,py,giftMap,giftPalette);
+  });
+
+  // border
+  ctx.strokeStyle="#9bd3ff";
+  ctx.lineWidth=2;
+  ctx.strokeRect(0,0,w,h);
 }
 
-function updateScores(){
-    playerScoreEl.textContent = pScore;
-    compScoreEl.textContent   = cScore;
+/* =========================
+   GAME LOOP
+========================= */
+function loop(ts){
+  // paused preview
+  if(!running){
+    draw();
+    requestAnimationFrame(loop);
+    return;
+  }
+
+  if(!lastTime) lastTime = ts;
+  const dt = (ts-lastTime)/1000;
+  lastTime = ts;
+  acc += dt;
+
+  const stepTime = 1/speed;
+  while(acc > stepTime){
+    step();
+    acc -= stepTime;
+  }
+
+  draw();
+  requestAnimationFrame(loop);
 }
+requestAnimationFrame(loop);
 
-// play one round
-function playRound(){
-    if(gameOver) return;
-
-    if(playerNumber === null || !playerParity){
-        infoEl.textContent = "Please choose both a number and Even/Odd.";
-        return;
-    }
-
-    var comp = Math.floor(Math.random() * 6); // 0..5
-    var sum  = playerNumber + comp;
-    var sumEven = isEven(sum);
-    var playerPickedEven = (playerParity === "even");
-
-    if ((sumEven && playerPickedEven) || (!sumEven && !playerPickedEven)){
-        pScore++;
-        infoEl.textContent =
-            "You win this round! Sum = " + sum +
-            " (" + (sumEven ? "Even" : "Odd") + ")";
-        logEl.innerHTML =
-            "<div>✅ You: " + playerNumber +
-            ", Computer: " + comp +
-            ", Sum " + sum + "</div>" + logEl.innerHTML;
-    } else {
-        cScore++;
-        infoEl.textContent =
-            "Computer wins this round. Sum = " + sum +
-            " (" + (sumEven ? "Even" : "Odd") + ")";
-        logEl.innerHTML =
-            "<div>❌ You: " + playerNumber +
-            ", Computer: " + comp +
-            ", Sum " + sum + "</div>" + logEl.innerHTML;
-    }
-
-    updateScores();
-
-    // check game over (first to 5)
-    if (pScore >= 5 || cScore >= 5){
-        gameOver = true;
-
-        // clear old classes
-        resultMessageEl.classList.remove("result-win", "result-lose");
-
-        if (pScore > cScore){
-            // player wins
-            resultMessageEl.textContent = "Congratulations! You win!";
-            resultMessageEl.classList.add("result-win");
-        } else {
-            // computer wins
-            resultMessageEl.textContent = "LOSE";
-            resultMessageEl.classList.add("result-lose");
-        }
-
-        infoEl.textContent += "  Game Over! Press Reset to play again.";
-    }
-}
-
-playBtn.addEventListener("click", playRound);
-
-// reset game
-function resetGame(){
-    playerNumber = null;
-    playerParity = null;
-    pScore = 0;
-    cScore = 0;
-    gameOver = false;
-
-    for (var i = 0; i < numberButtons.length; i++){
-        numberButtons[i].classList.remove("selected");
-    }
-    evenBtn.classList.remove("selected");
-    oddBtn.classList.remove("selected");
-
-    logEl.innerHTML = "";
-    updateScores();
-
-    // clear result message
-    resultMessageEl.textContent = "";
-    resultMessageEl.classList.remove("result-win", "result-lose");
-
-    infoEl.textContent =
-        "Game reset! Pick a number, choose Even/Odd, then press Play Round.";
-}
-
-resetBtn.addEventListener("click", resetGame);

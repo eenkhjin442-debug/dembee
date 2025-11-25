@@ -1,300 +1,123 @@
 
-/* suuri */
-
-*{
-  box-sizing: border-box;
-  font-family: "Noto Sans", Arial, sans-serif;
+:root{
+  --bg:#06152a;
+  --accent:#9bd3ff;
 }
 
 body{
-  
-    overflow: hidden;
-    margin: 0px;
-    user-select: none;
-    width: 100%;
-    height: 100%;
-  padding: 0;
-  color: #fdf6e3;
-
-  /* sr aliin heseg */
-  background:
-    radial-gradient(circle at top, #1d3557 0%, #060911 55%, #000000 100%);
+  margin:0;
+  background:var(--bg);
+  color:#fff;
+  font-family:system-ui, sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:100vh;
+  text-align:center;
+  padding-top:12px;
+  box-sizing:border-box;
 }
 
-/* nuur */
-
-.page{
-  min-height: 100vh;
-  width: 100%;
-  display: none;
-  padding: 24px 16px;
-  display: none;
-
-  /* gol heseg */
-  display: none;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+.title{
+  margin:6px 0 4px;
+  font-size:20px;
+  letter-spacing:1px;
 }
 
-.page.active{
-  display: flex;
+.hud{
+  display:flex;
+  gap:12px;
+  margin-bottom:8px;
+  font-size:13px;
+  opacity:0.9;
+  flex-wrap:wrap;
+  justify-content:center;
 }
 
-/* garchig */
-
-.main-title{
-  margin: 0 0 10px;
-  text-align: center;
-  color: #ffd97a;       
-  text-shadow: 0 0 8px rgba(0,0,0,0.6);
+/* ✅ RESPONSIVE CANVAS */
+canvas{
+  width:min(92vw, 520px);
+  height:auto;
+  aspect-ratio:1/1; /* always square */
+  background: radial-gradient(circle at top, #0c2a52, #041225 70%);
+  border:3px solid var(--accent);
+  border-radius:12px;
+  image-rendering: pixelated;
+  box-shadow:0 0 30px rgba(155,211,255,0.25);
+  touch-action: none;
 }
 
-.main-title.small{
-  font-size: 22px;
+.hint{
+  margin-top:6px;
+  font-size:12px;
+  opacity:0.7;
+  padding:0 12px;
 }
 
-.sub-text{
-  max-width: 340px;
-  text-align: center;
-  color: #f5e6c0;
-  margin: 0 0 25px;
-  font-size: 14px;
+.btns{
+  margin-top:8px;
+  display:flex;
+  gap:8px;
 }
 
-.menu-box{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 220px;
+button{
+  padding:8px 14px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  background:#ff5a5a;
+  color:white;
+  font-weight:800;
 }
 
-/* tovchnuud */
-
-.btn{
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 2px solid #ffd97a;
-  background: rgba(7,26,60,0.95);
-  color: #fdf6e3;
-  cursor: pointer;
-  font-size: 14px;
-  letter-spacing: 0.3px;
-  transition: 0.12s ease;
+/* ✅ START SCREEN */
+.start-screen{
+  position:fixed;
+  inset:0;
+  background:rgba(2,8,20,0.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
 }
 
-.btn:hover{
-  background: rgba(18,45,85,0.97);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+.start-card{
+  width:min(88vw, 360px);
+  background:#0b2342;
+  border:2px solid var(--accent);
+  border-radius:14px;
+  padding:20px 18px;
+  box-shadow:0 0 40px rgba(0,0,0,0.5);
 }
 
-.big-btn{
-  font-size: 16px;
+.start-card h1{
+  font-size:20px;
+  margin:0 0 8px;
 }
 
-.second-btn{
-  background: rgba(13,38,78,0.95);
+.start-card p{
+  font-size:13px;
+  opacity:0.85;
+  margin:0 0 14px;
 }
-
-.btn.selected{
-  background: #ffd97a;
-  color: #2b1300;
+.dpad{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
 }
-
-.play-btn{
-  background: #1b6f3c;   
+.dpad .mid{
+  display:flex;
+  gap:10px;
 }
-
-.play-btn:hover{
-  background: #238f4d;
-}
-
-.reset-btn{
-  background: #8c1d1d;   
-}
-
-.reset-btn:hover{
-  background: #b42828;
-}
-
-.back-btn{
-  margin-top: 15px;
-  background: rgba(7,21,40,0.85);
-}
-
-.bottom-back{
-  margin-top: 10px;
-  width: 100%;
-}
-
-/* durem */
-
-.rules-box{
-  max-width: 430px;
-  width: 100%;
-  margin: 0 auto;
-  background: rgba(7,21,40,0.94);
-  border-radius: 16px;
-  padding: 16px 18px;
-  border: 2px solid #ffd97a;
-  box-shadow: 0 14px 30px rgba(0,0,0,0.8);
-  font-size: 14px;
-  color: #f5e6c0;
-  position: relative;
-  overflow: hidden;
-}
-
-/* chimeglel */
-.rules-box::before,
-.rules-box::after{
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    #ffd97a,
-    #ffd97a 14px,
-    #006b9a 14px,
-    #006b9a 28px,
-    #ff6f6f 28px,
-    #ff6f6f 42px
-  );
-}
-
-.rules-box::before{ top: 0; }
-.rules-box::after{ bottom: 0; }
-
-/* togloomnii hairtsag */
-
-.game-box{
-  max-width: 430px;
-  width: 100%;
-  margin: 0 auto;
-  background: rgba(7,21,40,0.94);
-  border-radius: 18px;
-  padding: 18px 18px 20px;
-  border: 2px solid #ffd97a;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.85);
-  position: relative;
-  overflow: hidden;
-}
-
-.game-box::before,
-.game-box::after{
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    #ffd97a,
-    #ffd97a 14px,
-    #0067a3 14px,
-    #0067a3 28px,
-    #ff7a8a 28px,
-    #ff7a8a 42px
-  );
-}
-
-.game-box::before{ top: 0; }
-.game-box::after{ bottom: 0; }
-
-.score-row{
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-/* ur dun */
-
-.result-message{
-  margin: 4px 0 8px;
-  min-height: 30px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.result-win{
-  color: #78ff9b;
-}
-
-.result-lose{
-  color: #ff6b6b;
-}
-
-/* dotorh card */
-
-.section{
-  margin-bottom: 10px;
-}
-
-.label{
-  font-size: 14px;
-}
-
-.btn-row{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.info-box{
-  margin-top: 8px;
-  padding: 6px;
-  border-radius: 8px;
-  background: rgba(10,31,55,0.9);
-  border: 1px solid #ffd97a;
-  min-height: 30px;
-  font-size: 14px;
-}
-
-.log-box{
-  margin-top: 10px;
-  padding: 6px;
-  border-radius: 8px;
-  background: rgba(10,31,55,0.9);
-  border: 1px solid #ffd97a;
-  max-height: 160px;
-  overflow-y: auto;
-  font-size: 13px;
-}
-
-.log-box div{
-  margin-bottom: 4px;
-}
-
-/* utsan deer hargdah */
-
-@media (max-width: 600px){
-  .page{
-    padding: 16px 10px;
-  }
-
-  .main-title{
-    font-size: 22px;
-  }
-
-  .main-title.small{
-    font-size: 20px;
-  }
-
-  .game-box,
-  .rules-box{
-    max-width: 95%;
-    width: 95%;
-    padding: 14px 12px 16px;
-  }
-
-  .btn-row{
-    justify-content: center;
-  }
-
-  .menu-box{
-    width: 260px;
-  }
+.dpad button{
+  width:56px; height:56px;
+  border-radius:12px;
+  font-size:22px;
+  background:#1a3b66;
+  border:2px solid #9bd3ff;
+  color:white;
+  font-weight:900;
 }

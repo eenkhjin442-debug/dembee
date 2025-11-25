@@ -1,89 +1,47 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Even / Odd Game</title>
-    <link rel="stylesheet" href="./src/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pixel Santa Snake</title>
+  <link rel="stylesheet" href="./src/style.css">
 </head>
+
+
+
 <body>
 
-    <!-- gol nuur -->
-    <div id="homePage" class="page active">
-        <h1 class="main-title">Even / Odd Game</h1>
-        <p class="sub-text">
-            Pick a number, choose Even or Odd, and try to beat the computer!
-        </p>
-        <div class="menu-box">
-            <button id="startBtn" class="btn big-btn">Start</button>
-            <button id="rulesBtn" class="btn big-btn second-btn">Rules</button>
-        </div>
+  <!-- START SCREEN -->
+  <div id="startScreen" class="start-screen">
+    <div class="start-card">
+      <h1>🎄 PIXEL SANTA SNAKE 🎄</h1>
+      <p>Arrow keys to move. Eat gifts 🎁 and grow longer.</p>
+      <button id="startBtn">Start Game</button>
     </div>
+  </div>
 
-    <!-- durem--> 
-    <div id="rulesPage" class="page">
-        <h2 class="main-title">Rules</h2>
+  <!-- GAME UI -->
+  <h2 class="title">🎅 PIXEL SANTA</h2>
 
-        <div class="rules-box">
-            <p>1. Pick a number from <b>0 to 5</b>.</p>
-            <p>2. Choose <b>Even</b> or <b>Odd</b>.</p>
-            <p>3. The computer also picks a random number from 0 to 5.</p>
-            <p>4. Both numbers are added together.</p>
-            <p>
-                If the sum matches your choice (Even or Odd),
-                <b>you get a point</b>. Otherwise, the computer gets a point.
-            </p>
-            <p><b>First to reach 5 points wins.</b></p>
-        </div>
+  <div class="hud">
+    <div>Gifts: <span id="score">0</span></div>
+    <div>Clicks(Keypress): <span id="clicks">0</span></div>
+    <div>Speed: <span id="speed">6</span></div>
+  </div>
 
-        <button id="backFromRules" class="btn back-btn">← Back</button>
-    </div>
+  <canvas id="game"></canvas>
+  
 
-    <!-- togloomiin nuur -->
-    <div id="gamePage" class="page">
-        <div class="game-box">
-            <h2 class="main-title small">Game</h2>
 
-            <div class="score-row">
-                <div>Player: <span id="playerScore">0</span></div>
-                <div>Computer: <span id="compScore">0</span></div>
-            </div>
+  <div class="btns">
+    <button id="restart">Restart</button>
+  </div>
 
-            <!-- ur dung haruulah -->
-            <div id="resultMessage" class="result-message"></div>
+  <div class="hint">
+    Use arrow keys ↑ ↓ ← →. Eat gifts 🎁. Don't hit walls or yourself.
+  </div>
 
-            <div class="section">
-                <div class="label">Pick a number (0–5):</div>
-                <div id="numberBtns" class="btn-row">
-                    <!-- hiih-->
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="label">Choose Even or Odd:</div>
-                <div class="btn-row">
-                    <button id="evenBtn" class="btn">Even</button>
-                    <button id="oddBtn" class="btn">Odd</button>
-                </div>
-            </div>
-
-            <div class="section">
-                <button id="playBtn" class="btn play-btn">Play Round</button>
-                <button id="resetBtn" class="btn reset-btn">Reset</button>
-            </div>
-
-            <div id="info" class="info-box">
-                First choose a number, then choose Even/Odd, then press "Play Round".
-            </div>
-
-            <div id="log" class="log-box">
-                <!-- hiisen tuuhiig hadgalah -->
-            </div>
-
-            <button id="backFromGame" class="btn back-btn bottom-back">← Back to Menu</button>
-        </div>
-    </div>
-
-    <script type="module" src="./src/main.js"></script>
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>
