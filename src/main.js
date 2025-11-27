@@ -1,13 +1,15 @@
-ClickBattle.init("enkhjin"); // 자기 닉네임
-
+// MAIN GAME LOGIC (Santa Snake)
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-/* =========================
-   RESPONSIVE CANVAS
-========================= */
-function resizeCanvas(){
+// =======================
+// RESPONSIVE CANVAS
+// =======================
+
+const GRID = 24;
+
+function resizeCanvas() {
   const cssSize = Math.min(
     window.innerWidth * 0.92,
     window.innerHeight * 0.62,
@@ -17,81 +19,74 @@ function resizeCanvas(){
 
   canvas.width = Math.floor(cssSize * dpr);
   canvas.height = Math.floor(cssSize * dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-const GRID = 24;
-function CELL(){ 
-  return canvas.width / (window.devicePixelRatio||1) / GRID; 
+function CELL() {
+  const dpr = window.devicePixelRatio || 1;
+  return canvas.width / dpr / GRID;
 }
 
-/* =========================
-   GAME STATE
-========================= */
-let snake, dir, nextDir, gift, score, clicks;
-let speed = 6;        // steps per second
-let running = false;  // start paused
+// =======================
+// GAME STATE
+// =======================
+
+let snake, dir, nextDir, gift, score, clicks, speed;
+let running = false;
 let lastTime = 0;
 let acc = 0;
 
-/* =========================
-   COLORS
-========================= */
+// colors
 const C = {
-  red:"#e74a4a",
-  darkRed:"#b02f2f",
-  white:"#f7f7f7",
-  black:"#141414",
-  skin:"#f2c9a0",
-  gold:"#f5c84c",
-  green:"#3bd26b",
+  bg: "#06152a",
+  grid: "#102541",
+  snakeHead: "#ff5a5a",
+  snakeBody: "#3bd26b",
+  gift: "#f5c84c"
 };
 
-/* =========================
-   HUD
-========================= */
+// HUD elements
 const scoreEl = document.getElementById("score");
 const clicksEl = document.getElementById("clicks");
 const speedEl = document.getElementById("speed");
-function updateHUD(){
+
+function updateHUD() {
   scoreEl.textContent = score;
   clicksEl.textContent = clicks;
   speedEl.textContent = speed;
 }
 
-/* =========================
-   START SCREEN
-========================= */
+// =======================
+// START / RESTART
+// =======================
+
 const startScreen = document.getElementById("startScreen");
 const startBtn = document.getElementById("startBtn");
 
-startBtn?.addEventListener("click", ()=>{
+startBtn.addEventListener("click", () => {
   startScreen.style.display = "none";
   running = true;
   reset();
 });
 
-/* =========================
-   RESTART BUTTON
-========================= */
-document.getElementById("restart")?.addEventListener("click", ()=>{
+document.getElementById("restart").addEventListener("click", () => {
   running = true;
   reset();
 });
 
-/* =========================
-   RESET / INIT
-========================= */
-function reset(){
+// init / reset
+function reset() {
+  const center = Math.floor(GRID / 2);
+
   snake = [
-    {x:12, y:12},
-    {x:11, y:12},
-    {x:10, y:12}
+    { x: center - 1, y: center },
+    { x: center - 2, y: center },
+    { x: center - 3, y: center }
   ];
-  dir = {x:1, y:0};
-  nextDir = {x:1, y:0};
+  dir = { x: 1, y: 0 };
+  nextDir = { x: 1, y: 0 };
 
   gift = spawnGift();
   score = 0;
@@ -104,255 +99,229 @@ function reset(){
   updateHUD();
 }
 
-// ✅ page нээхэд preview харагдахаар init reset
-reset();
+// =======================
+// SPAWN GIFT
+// =======================
 
-/* =========================
-   RANDOM GIFT SPAWN
-========================= */
-function spawnGift(){
-  while(true){
-    const g = { 
-      x: (Math.random()*GRID)|0, 
-      y: (Math.random()*GRID)|0 
+function spawnGift() {
+  while (true) {
+    const g = {
+      x: (Math.random() * GRID) | 0,
+      y: (Math.random() * GRID) | 0
     };
-    if(!snake.some(s=>s.x===g.x && s.y===g.y)) return g;
+    if (!snake.some((s) => s.x === g.x && s.y === g.y)) return g;
   }
 }
 
-/* =========================
-   KEYBOARD INPUT
-========================= */
-window.addEventListener("keydown", (e)=>{
-  if(!running) return;
+// =======================
+// INPUT HELPERS
+// =======================
+
+function recordClick() {
+  clicks++;
+  try {
+    if (window.ClickBattle && typeof ClickBattle.recordClick === "function") {
+      ClickBattle.recordClick();
+    }
+  } catch (e) {
+    // ignore if ClickBattle not loaded
+  }
+  updateHUD();
+}
+
+function trySetDirection(nd) {
+  // reverse хөдөлгөөнийг хориглоно
+  if (nd && !(nd.x === -dir.x && nd.y === -dir.y)) {
+    nextDir = nd;
+    recordClick();
+  }
+}
+
+// keyboard input
+window.addEventListener("keydown", (e) => {
+  if (!running) return;
 
   const key = e.key;
-  let nd=null;
+  let nd = null;
 
-  if(key==="ArrowUp") nd={x:0,y:-1};
-  if(key==="ArrowDown") nd={x:0,y:1};
-  if(key==="ArrowLeft") nd={x:-1,y:0};
-  if(key==="ArrowRight") nd={x:1,y:0};
+  if (key === "ArrowUp") nd = { x: 0, y: -1 };
+  if (key === "ArrowDown") nd = { x: 0, y: 1 };
+  if (key === "ArrowLeft") nd = { x: -1, y: 0 };
+  if (key === "ArrowRight") nd = { x: 1, y: 0 };
 
-  if(nd){
-    if(!(nd.x === -dir.x && nd.y === -dir.y)){
-      nextDir = nd;
-      clicks++;     
-      ClickBattle.recordClick();  // keyboard = click
-      updateHUD();
-    }
+  if (nd) {
     e.preventDefault();
-    document.querySelectorAll('.arrow-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    console.log("clicked:", btn.className);
-    // энд нэмэлт эффект хийж болно
-  });
-});
-
+    trySetDirection(nd);
   }
 });
 
-/* =========================
-   MOBILE DPAD INPUT (B)
-   (index.html + style.css дээр
-    dpad нэмсэн байх ёстой)
-========================= */
-document.querySelectorAll(".dpad button").forEach(btn=>{
-  btn.addEventListener("touchstart", (e)=>{
+// dpad / arrow buttons
+function handleDirectionString(dirStr) {
+  if (!running) return;
+
+  let nd = null;
+  if (dirStr === "up") nd = { x: 0, y: -1 };
+  if (dirStr === "down") nd = { x: 0, y: 1 };
+  if (dirStr === "left") nd = { x: -1, y: 0 };
+  if (dirStr === "right") nd = { x: 1, y: 0 };
+
+  trySetDirection(nd);
+}
+
+document.querySelectorAll(".arrow-btn").forEach((btn) => {
+  const d = btn.dataset.dir;
+
+  btn.addEventListener("click", (e) => {
     e.preventDefault();
-    if(!running) return;
+    handleDirectionString(d);
+  });
 
-    const d = btn.dataset.dir;
-    let nd = null;
-
-    if(d==="up") nd={x:0,y:-1};
-    if(d==="down") nd={x:0,y:1};
-    if(d==="left") nd={x:-1,y:0};
-    if(d==="right") nd={x:1,y:0};
-
-    if(nd && !(nd.x === -dir.x && nd.y === -dir.y)){
-      nextDir = nd;
-      clicks++;  // dpad = click
-      updateHUD();
-    }
-  }, {passive:false});
+  btn.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      handleDirectionString(d);
+    },
+    { passive: false }
+  );
 });
 
-/* =========================
-   GAME STEP
-========================= */
-function step(){
+// =======================
+// GAME STEP
+// =======================
+
+function step() {
   dir = nextDir;
   const head = snake[0];
   const nx = head.x + dir.x;
   const ny = head.y + dir.y;
 
   // wall hit
-  if(nx<0 || ny<0 || nx>=GRID || ny>=GRID){ 
-    gameOver(); 
-    return; 
+  if (nx < 0 || ny < 0 || nx >= GRID || ny >= GRID) {
+    gameOver();
+    return;
   }
+
   // self hit
-  if(snake.some((s,i)=>i>0 && s.x===nx && s.y===ny)){ 
-    gameOver(); 
-    return; 
+  if (snake.some((s, i) => i > 0 && s.x === nx && s.y === ny)) {
+    gameOver();
+    return;
   }
 
-  snake.unshift({x:nx,y:ny});
+  // move
+  snake.unshift({ x: nx, y: ny });
 
-  // eat gift
-  if(nx===gift.x && ny===gift.y){
+  // eat
+  if (nx === gift.x && ny === gift.y) {
     score++;
     gift = spawnGift();
-
-    // speed up every 3 gifts
-    if(score%3===0) speed++;
-
+    if (score % 3 === 0) speed++; // 3 gift тутамд хурдан болно
     updateHUD();
   } else {
     snake.pop();
   }
 }
 
-/* =========================
-   GAME OVER
-========================= */
-function gameOver(){
-  running = false;
-  draw();
+// =======================
+// DRAW
+// =======================
 
-  const w = canvas.width/(window.devicePixelRatio||1);
-  const h = canvas.height/(window.devicePixelRatio||1);
-
-  ctx.fillStyle="rgba(0,0,0,0.6)";
-  ctx.fillRect(0,0,w,h);
-  ctx.fillStyle="#fff";
-  ctx.font="bold 26px system-ui";
-  ctx.textAlign="center";
-  ctx.fillText("GAME OVER", w/2, h/2-8);
-  ctx.font="14px system-ui";
-  ctx.fillText("Press Restart", w/2, h/2+16);
-}
-
-/* =========================
-   PIXEL DRAW HELPER
-========================= */
-function drawPixelArt(px, py, map, palette){
+function draw() {
   const cell = CELL();
-  const size = cell/8;
-  for(let r=0;r<8;r++){
-    for(let c=0;c<8;c++){
-      const ch = map[r][c];
-      if(ch===".") continue;
-      ctx.fillStyle = palette[ch];
-      ctx.fillRect(px + c*size, py + r*size, size, size);
+  const w = canvas.width / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+
+  ctx.clearRect(0, 0, w, h);
+
+  // grid background (зөөлөн шугам)
+  ctx.fillStyle = C.grid;
+  for (let x = 0; x < GRID; x++) {
+    for (let y = 0; y < GRID; y++) {
+      ctx.fillRect(x * cell, y * cell, cell - 1, cell - 1);
     }
   }
-}
 
-/* =========================
-   PIXEL MAPS
-========================= */
-// Santa head (8x8)
-const santaMap=[
-  "..rrrr..",
-  ".rwwwwr.",
-  "rwwbbwwr",
-  "rws sswr",
-  "rwwssssr",
-  ".rwwwwr.",
-  "..rddr..",
-  "...rr..."
-];
-const santaPalette={
-  "r":C.red,
-  "d":C.darkRed,
-  "w":C.white,
-  "b":C.black,
-  "s":C.skin,
-  ".":"transparent"
-};
-
-// Gift body (8x8)
-const giftMap=[
-  "ggggrrrr",
-  "ggggrrrr",
-  "yyyyrrrr",
-  "yyyyrrrr",
-  "rrrryyyy",
-  "rrrryyyy",
-  "rrrrgggg",
-  "rrrrgggg"
-];
-const giftPalette={
-  "g":C.green,
-  "r":C.red,
-  "y":C.gold,
-  ".":"transparent"
-};
-
-// Food gift (8x8)
-const foodMap=[
-  "rrrrrrrr",
-  "rggggggr",
-  "rgyyyygr",
-  "rgyrrygr",
-  "rgyyyygr",
-  "rggggggr",
-  "rrrrrrrr",
-  "..yyyy.."
-];
-const foodPalette={
-  "r":C.red,
-  "g":C.green,
-  "y":C.gold,
-  ".":"transparent"
-};
-
-/* =========================
-   DRAW FRAME
-========================= */
-function draw(){
-  const cell = CELL();
-  const w = canvas.width/(window.devicePixelRatio||1);
-  const h = canvas.height/(window.devicePixelRatio||1);
-
-  ctx.clearRect(0,0,w,h);
-
-  // food
-  drawPixelArt(gift.x*cell, gift.y*cell, foodMap, foodPalette);
+  // gift
+  ctx.fillStyle = C.gift;
+  ctx.fillRect(
+    gift.x * cell + cell * 0.15,
+    gift.y * cell + cell * 0.15,
+    cell * 0.7,
+    cell * 0.7
+  );
 
   // snake (head + body)
-  snake.forEach((s,i)=>{
-    const px=s.x*cell, py=s.y*cell;
-    if(i===0) drawPixelArt(px,py,santaMap,santaPalette);
-    else drawPixelArt(px,py,giftMap,giftPalette);
+  snake.forEach((s, i) => {
+    if (i === 0) {
+      // head
+      ctx.fillStyle = C.snakeHead;
+      ctx.beginPath();
+      ctx.arc(
+        s.x * cell + cell / 2,
+        s.y * cell + cell / 2,
+        cell * 0.45,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    } else {
+      // body
+      ctx.fillStyle = C.snakeBody;
+      ctx.fillRect(
+        s.x * cell + cell * 0.15,
+        s.y * cell + cell * 0.15,
+        cell * 0.7,
+        cell * 0.7
+      );
+    }
   });
 
   // border
-  ctx.strokeStyle="#9bd3ff";
-  ctx.lineWidth=2;
-  ctx.strokeRect(0,0,w,h);
+  ctx.strokeStyle = "#9bd3ff";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, w, h);
 }
 
-/* =========================
-   GAME LOOP
-========================= */
-function loop(ts){
-  // paused preview
-  if(!running){
+// =======================
+// GAME OVER
+// =======================
+
+function gameOver() {
+  running = false;
+  draw();
+
+  const w = canvas.width / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+
+  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 26px system-ui";
+  ctx.textAlign = "center";
+  ctx.fillText("GAME OVER", w / 2, h / 2 - 8);
+  ctx.font = "14px system-ui";
+  ctx.fillText("Press Restart", w / 2, h / 2 + 16);
+}
+
+// =======================
+// MAIN LOOP
+// =======================
+
+function loop(ts) {
+  if (!running) {
     draw();
     requestAnimationFrame(loop);
     return;
   }
 
-  if(!lastTime) lastTime = ts;
-  const dt = (ts-lastTime)/1000;
+  if (!lastTime) lastTime = ts;
+  const dt = (ts - lastTime) / 1000;
   lastTime = ts;
   acc += dt;
 
-  const stepTime = 1/speed;
-  while(acc > stepTime){
+  const stepTime = 1 / speed;
+  while (acc > stepTime) {
     step();
     acc -= stepTime;
   }
@@ -360,5 +329,7 @@ function loop(ts){
   draw();
   requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
 
+// эхний preview-д зориулж reset хийгээд loop эхлүүлнэ
+reset();
+requestAnimationFrame(loop);

@@ -1,11 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="./src/style.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <link rel="stylesheet" href="./src/style.css" />
+
+  <!-- 👇 Багшийн заасан ClickBattle код (нэгхэн удаа) -->
   <script src="https://clickbattle2025.web.app/click-battle.js"></script>
   <script>
-    ClickBattle.init("ENKHJIN");
+    ClickBattle.init("ENKHJIN"); // өөрийн nickname
   </script>
+
   <title>Clicker Game</title>
 </head>
 <body>
@@ -13,23 +21,30 @@
   <div id="startScreen" class="start-screen">
     <div class="start-card">
       <h1>🎄 PIXEL SANTA SNAKE 🎄</h1>
-      <p>Arrow keys to move. Eat gifts 🎁 and grow longer.</p>
+      <p>Use arrow keys or buttons to move. Eat gifts 🎁 and grow longer.</p>
+      <p>Every move (key or button) counts as a click for ClickBattle.</p>
       <button id="startBtn">Start Game</button>
     </div>
   </div>
 
-  <!-- GAME UI -->
+  <!-- HUD -->
   <h2 class="title">🎅 PIXEL SANTA</h2>
 
   <div class="hud">
     <div>Gifts: <span id="score">0</span></div>
-    <div>Clicks (Keypress): <span id="clicks">0</span></div>
+    <div>Clicks (Key/Button): <span id="clicks">0</span></div>
     <div>Speed: <span id="speed">6</span></div>
   </div>
 
+  <!-- GAME CANVAS -->
   <canvas id="game"></canvas>
 
-  <!-- доод талын товчнууд -->
+  <!-- RESTART – CANVAS-ЫН ЯГ ДООР -->
+  <div class="btns">
+    <button id="restart">Restart</button>
+  </div>
+
+  <!-- ARROW BUTTONS -->
   <div class="arrow-controls">
     <button class="arrow-btn" data-dir="up">⬆</button>
     <div class="middle-row">
@@ -39,58 +54,13 @@
     <button class="arrow-btn" data-dir="down">⬇</button>
   </div>
 
-  <!-- Restart товч -->
-  <div class="btns">
-    <button id="restart">Restart</button>
-  </div>
-
-  <!-- hint текст -->
+  <!-- HINT -->
   <div class="hint">
-    Use arrow keys ↑ ↓ ← →. Eat gifts 🎁. Don't hit walls or yourself.
+    Use arrow keys ↑ ↓ ← → or the buttons. Eat gifts 🎁 and avoid walls and
+    your own tail.
   </div>
 
-  <!-- тоглоомын үндсэн JS -->
-  <script type="module" src="./src/main.js"></script>
-
-  <!-- Arrow button JS : товч → keyboard event -->
-  <script>
-    const dirToKey = {
-      up: 'ArrowUp',
-      down: 'ArrowDown',
-      left: 'ArrowLeft',
-      right: 'ArrowRight'
-    };
-
-    document.querySelectorAll('.arrow-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dir = btn.dataset.dir;
-        const key = dirToKey[dir];
-        if (!key) return;
-
-        const event = new KeyboardEvent('keydown', {
-          key: key,
-          code: key,
-          bubbles: true
-        });
-        window.dispatchEvent(event);
-      });
-    });
-  </script>
-</body>
-</html>
-
-
-
-
-
-  <div class="btns">
-    <button id="restart">Restart</button>
-  </div>
-
-  <div class="hint">
-    Use arrow keys ↑ ↓ ← →. Eat gifts 🎁. Don't hit walls or yourself.
-  </div>
-
+  <!-- MAIN JS -->
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
