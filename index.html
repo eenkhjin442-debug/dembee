@@ -8,9 +8,7 @@
   </script>
   <title>Clicker Game</title>
 </head>
-
 <body>
-
   <!-- START SCREEN -->
   <div id="startScreen" class="start-screen">
     <div class="start-card">
@@ -25,19 +23,63 @@
 
   <div class="hud">
     <div>Gifts: <span id="score">0</span></div>
-    <div>Clicks(Keypress): <span id="clicks">0</span></div>
+    <div>Clicks (Keypress): <span id="clicks">0</span></div>
     <div>Speed: <span id="speed">6</span></div>
   </div>
 
   <canvas id="game"></canvas>
+
+  <!-- доод талын товчнууд -->
   <div class="arrow-controls">
-  <button class="arrow-btn up">⬆</button>
-  <div class="middle-row">
-    <button class="arrow-btn left">⬅</button>
-    <button class="arrow-btn right">➡</button>
+    <button class="arrow-btn" data-dir="up">⬆</button>
+    <div class="middle-row">
+      <button class="arrow-btn" data-dir="left">⬅</button>
+      <button class="arrow-btn" data-dir="right">➡</button>
+    </div>
+    <button class="arrow-btn" data-dir="down">⬇</button>
   </div>
-  <button class="arrow-btn down">⬇</button>
-</div>
+
+  <!-- Restart товч -->
+  <div class="btns">
+    <button id="restart">Restart</button>
+  </div>
+
+  <!-- hint текст -->
+  <div class="hint">
+    Use arrow keys ↑ ↓ ← →. Eat gifts 🎁. Don't hit walls or yourself.
+  </div>
+
+  <!-- тоглоомын үндсэн JS -->
+  <script type="module" src="./src/main.js"></script>
+
+  <!-- Arrow button JS : товч → keyboard event -->
+  <script>
+    const dirToKey = {
+      up: 'ArrowUp',
+      down: 'ArrowDown',
+      left: 'ArrowLeft',
+      right: 'ArrowRight'
+    };
+
+    document.querySelectorAll('.arrow-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dir = btn.dataset.dir;
+        const key = dirToKey[dir];
+        if (!key) return;
+
+        const event = new KeyboardEvent('keydown', {
+          key: key,
+          code: key,
+          bubbles: true
+        });
+        window.dispatchEvent(event);
+      });
+    });
+  </script>
+</body>
+</html>
+
+
 
 
 
