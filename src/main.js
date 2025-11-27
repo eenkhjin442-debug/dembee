@@ -142,6 +142,13 @@ window.addEventListener("keydown", (e)=>{
       updateHUD();
     }
     e.preventDefault();
+    document.querySelectorAll('.arrow-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    console.log("clicked:", btn.className);
+    // энд нэмэлт эффект хийж болно
+  });
+});
+
   }
 });
 
