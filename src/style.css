@@ -1,179 +1,111 @@
-body {
-    overflow: hidden;
-    margin: 0px;
-    user-select: none;
-    width: 100%;
-    height: 100%;
-}:root {
-  --bg: #06152a;
-  --accent: #9bd3ff;
+:root{
+  --bg: #efc0c0;
+  --ink: #111;
+  --fade: 0.18;
+  --stroke: rgba(0,0,0,0.72);
+  --gap: 12px;
+  --padX: 16px;
+  --padTop: 22px;
+  --padBottom: 108px;
 }
 
-/* ===== GLOBAL ===== */
+*{ box-sizing:border-box; }
 
-* {
-  box-sizing: border-box;
+html, body{
+  height: 100%;
 }
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: #fff;
-  font-family: system-ui, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+body{
+  margin:0;
+  background: radial-gradient(1200px 600px at 20% 0%, #ffffff 0%, var(--bg) 55%, #f1f1f1 100%);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+/* Төвлөрсөн “작품” шиг тавцан */
+#app{
   min-height: 100vh;
-  text-align: center;
-  padding-top: 12px;
+  padding: var(--padTop) var(--padX) var(--padBottom);
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-/* ===== TITLE & HUD ===== */
-
-.title {
-  margin: 6px 0 4px;
-  font-size: 20px;
-  letter-spacing: 1px;
+/* Дөрвөлжинүүдийн талбай */
+#canvas{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14px, 1fr));
+  gap: var(--gap);
+  align-content: start;
 }
 
-.hud {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  opacity: 0.9;
-  flex-wrap: wrap;
-  justify-content: center;
+/* Empty square */
+.square{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid var(--stroke);
+  border-radius: 3px;
+  opacity: var(--fade);
+  background: transparent;
+  transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease;
 }
 
-/* ===== CANVAS ===== */
-
-canvas {
-  width: min(92vw, 520px);
-  height: auto;
-  aspect-ratio: 1 / 1; /* always square */
-  background: radial-gradient(circle at top, #0c2a52, #041225 70%);
-  border: 3px solid var(--accent);
-  border-radius: 12px;
-  image-rendering: pixelated;
-  box-shadow: 0 0 30px rgba(155, 211, 255, 0.25);
-  touch-action: none;
+/* Гар хүрвэл жаахан “амь орно” (гэхдээ их биш) */
+.square:hover{
+  opacity: 0.28;
+  transform: translateY(-0.5px);
 }
 
-/* ===== HINT & GENERIC BUTTONS ===== */
-
-.hint {
-  margin-top: 6px;
-  font-size: 12px;
-  opacity: 0.7;
-  padding: 0 12px;
-}
-
-.btns {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
-button {
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: #ff5a5a;
-  color: #fff;
-  font-weight: 800;
-}
-
-button:hover {
-  filter: brightness(1.05);
-}
-
-button:active {
-  transform: translateY(1px);
-  filter: brightness(0.95);
-}
-
-/* ===== START SCREEN (MODAL) ===== */
-
-.start-screen {
+/* Доод “чимээгүй” control strip */
+#bottom{
   position: fixed;
-  inset: 0;
-  background: rgba(8, 8, 20, 0.85);
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 14px 16px 18px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 999;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(246,246,246,0.98),
+    rgba(246,246,246,0.65),
+    rgba(246,246,246,0)
+  );
 }
 
-.start-card {
-  width: min(88vw, 360px);
-  background: #0b2342;
-  border: 2px solid var(--accent);
-  border-radius: 14px;
-  padding: 20px 18px;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
-}
-
-.start-card h1 {
-  font-size: 20px;
-  margin: 0 0 8px;
-}
-
-.start-card p {
-  font-size: 13px;
-  opacity: 0.85;
-  margin: 0 0 14px;
-}
-
-/* ===== ARROW CONTROLS (CANVAS-ЫН ДООР) ===== */
-
-.arrow-controls {
-  width: 160px;
-  margin: 30px auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.middle-row {
-  display: flex;
-  gap: 8px;
-}
-
-.arrow-btn {
-  width: 60px;
-  height: 60px;
-  font-size: 28px;
-  font-weight: bold;
-  border: none;
-  border-radius: 12px;
-  background: #ffd7a6;
+/* Button — minimal pill */
+#absenceBtn{
+  pointer-events: auto;
+  border: 1px solid rgba(0,0,0,0.55);
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  color: rgba(0,0,0,0.85);
+  opacity: 0.75;
   cursor: pointer;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
-  transition: 0.1s;
+  transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
 }
 
-.arrow-btn:active {
-  background: #ffb865;
-  transform: translateY(2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+#absenceBtn:hover{
+  opacity: 0.95;
+  background: rgba(255,255,255,0.9);
 }
 
-/* жижиг дэлгэц дээр жаахан шахаж харагдуулах */
-@media (max-width: 480px) {
-  .title {
-    font-size: 18px;
-  }
-
-  .hud {
-    font-size: 12px;
-  }
-
-  .arrow-controls {
-    margin-top: 24px;
-  }
+#absenceBtn:active{
+  transform: translateY(1px);
 }
+
+/* Mobile жижигхэн болгож өгнө */
+@media (max-width: 360px){
+  :root{ --gap: 10px; }
+  #absenceBtn{ padding: 9px 12px; font-size: 12px; }
+}
+
+/* 7 дахь бүрийн дараах квадрат – долоо хоногийн завсар */
+.square.week-gap {
+  margin-right: 18px;
+}
+
